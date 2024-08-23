@@ -1,4 +1,3 @@
-#define I_AM_FT_LIST
 #include "ft_list.h"
 #include "error_codes.h"
 #include <stddef.h>
@@ -13,19 +12,17 @@ int ft_list_add_last(void** _head, void* _node)
 
     if (!*head)
     {
-        (*head)->next = node;
-        (*head)->prev = node;
+        *head = node;
+        node->next = node;
+        node->prev = node;
         return (OK);
     }
 
-    last = *head;
-    while (last->next != *head)
-    {
-        last = last->next;
-    }
-
+    last = (*head)->prev;
     last->next = node;
     node->prev = last;
+    node->next = *head;
+    (*head)->prev = node;
     
     return (OK);
 }
@@ -113,12 +110,7 @@ int ft_list_pop(void** _head, void* _node)
     list_item_t* prev;
     list_item_t* next;
 
-    if (!head || !node)
-    {
-        return (INVALID_ARGS);
-    }
-
-    if (!*head)
+    if (!head || !node || !*head)
     {
         return (INVALID_ARGS);
     }
@@ -126,8 +118,23 @@ int ft_list_pop(void** _head, void* _node)
     prev = node->prev;
     next = node->next;
 
-    prev->next = next;
-    next->prev = prev;
+    if (node == node->next && node == node->prev)
+    {
+        *head = NULL;
+    }
+    else
+    {
+        prev->next = next;
+        next->prev = prev;
+
+        if (*head == node)
+        {
+            *head = next;
+        }
+    }
+
+    node->next = NULL;
+    node->prev = NULL;
 
     return (OK);
 }

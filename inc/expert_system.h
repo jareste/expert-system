@@ -2,17 +2,27 @@
 #define EXPERT_SYSTEM_H
 #include <ft_list.h>
 
-typedef struct s_rule {
-    list_item_t *l;
-    char *condition;
-    char *conclusion;
-} t_rule;
+#define uint unsigned int
 
 typedef enum
 {
     LETTER,
     OPERATOR,
 } t_token_type;
+
+typedef struct s_token
+{
+    list_item_t 
+    l;
+    t_token_type type;
+    uint value;
+} t_token;
+
+typedef struct s_rule {
+    list_item_t l;
+    t_token *tokens;
+} t_rule;
+
 
 #define A 0x00000001
 #define B 0x00000002
@@ -40,6 +50,7 @@ typedef enum
 #define X 0x00800000
 #define Y 0x01000000
 #define Z 0x02000000
+
 
 
 #endif

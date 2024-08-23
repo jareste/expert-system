@@ -3,7 +3,7 @@ NAME = expert_system
 #########
 RM = rm -rf
 CC = cc
-CFLAGS = -Werror -Wextra -Wall
+CFLAGS = -Werror -Wextra -Wall -g -fsanitize=address
 LDFLAGS = -lm
 RELEASE_CFLAGS = $(CFLAGS) -DNDEBUG
 #########
