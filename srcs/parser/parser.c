@@ -54,13 +54,13 @@ static void read_file(const char *filename, char **content)
     if (access(filename, F_OK) != 0)
     {
         fprintf(stderr, "ft_ssl: %s: No such file or directory\n", filename);
-        return;
+        ft_assert(access(filename, F_OK) == 0, "Fatal error: File does not exist.");
     }
 
     if (access(filename, R_OK) != 0)
     {
         fprintf(stderr, "ft_ssl: %s: Permission denied\n", filename);
-        return;
+        ft_assert(access(filename, R_OK) == 0, "Fatal error: Permission denied.");
     }
 
     FILE *file = fopen(filename, "rb");
