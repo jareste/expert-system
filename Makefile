@@ -9,11 +9,11 @@ RELEASE_CFLAGS = $(CFLAGS) -DNDEBUG
 #########
 
 #########
-FILES = 
+FILES = main ft_list ft_malloc
 
 SRC = $(addsuffix .c, $(FILES))
 
-vpath %.c srcs
+vpath %.c srcs inc
 #########
 
 #########
@@ -33,7 +33,6 @@ all:
 $(NAME): $(OBJ) Makefile
 	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(LDFLAGS)
 	@echo "EVERYTHING DONE  "
-	@./.add_path.sh
 
 release: CFLAGS = $(RELEASE_CFLAGS)
 release: re
