@@ -9,6 +9,7 @@
 #include <expert_system.h> 
 #include <error_codes.h>
 #include <parser.h>
+#include <evaluate.h>
 
 int main(int argc, char**argv)
 {
@@ -22,6 +23,7 @@ int main(int argc, char**argv)
 
     parse(argv[1], &rules);
 
+    evaluate(rules);
 
     free_rules(rules);
     return OK;
