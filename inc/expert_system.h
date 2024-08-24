@@ -6,15 +6,16 @@
 
 typedef enum
 {
-    LETTER,
-    OPERATOR,
-} t_token_type;
-
-typedef enum
-{
     false,
     true
 } bool;
+
+
+typedef enum
+{
+    LETTER,
+    OPERATOR,
+} t_token_type;
 
 typedef struct s_token
 {
