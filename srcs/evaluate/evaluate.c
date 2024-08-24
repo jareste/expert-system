@@ -21,41 +21,46 @@ uint get_initial_value(t_token* token)
     return value;
 }
 
-/* this is not valid */
-bool evaluate_rule(t_rule *rule, uint *value) {
+bool evaluate_rule(t_rule *rule, uint *value)
+{
     t_token *current_token = rule->facts;
     bool result = false;
-    // bool temp = false;  // Used for intermediate operations
 
-    char last_operator = '\0';  // Stores the last operator encountered
+    char last_operator = '\0';
 
-    while (current_token) {
-        if (current_token->type == LETTER) {
-            // Evaluate the current letter by checking if its bit is set in *value
+    while (current_token)
+    {
+        if (current_token->type == LETTER)
+        {
             bool is_set = (*value & current_token->value) != 0;
 
-            if (last_operator == '\0') {
-                // First letter, initialize the result
+            if (last_operator == '\0')
+            {
                 result = is_set;
-            } else if (last_operator == '+') {
-                // AND operation
+            }
+            else if (last_operator == '+')
+            {
                 result = result && is_set;
-            } else if (last_operator == '|') {
-                // OR operation
+            }
+            else if (last_operator == '|')
+            {
                 result = result || is_set;
-            } else if (last_operator == '^') {
-                // XOR operation
+            }
+            else if (last_operator == '^')
+            {
                 result = result != is_set;
-            } else if (last_operator == '!') {
-                // NOT operation (applies to the next token)
+            }
+            else if (last_operator == '!')
+            {
+                
                 result = !is_set;
             }
-        } else if (current_token->type == OPERATOR) {
-            // Update the last operator
+        }
+        else if (current_token->type == OPERATOR)
+        {
             last_operator = (char)current_token->value;
         }
 
-        // Move to the next token
         current_token = FT_LIST_GET_NEXT(&rule->facts, current_token);
     }
 
