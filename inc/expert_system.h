@@ -20,7 +20,8 @@ typedef struct s_token
 
 typedef struct s_rule {
     list_item_t l;
-    t_token *tokens;
+    t_token *facts;
+    t_token *conclusion;
 } t_rule;
 
 

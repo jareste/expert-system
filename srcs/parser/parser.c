@@ -103,8 +103,10 @@ t_rule* process_line(char *line)
 {
     int i = 0;
     t_rule *rule = malloc(sizeof(t_rule));
-    t_token *tokens = NULL;
+    t_token *facts = NULL;
+    t_token *conclusion = NULL;
     t_token *n_token = NULL;
+    bool conclusion = false;
 
     for (i = 0; line[i]; i++)
     {
@@ -142,9 +144,10 @@ t_rule* process_line(char *line)
                 }
                 break;
         }
-        FT_LIST_ADD_LAST(&tokens, n_token);
+        FT_LIST_ADD_LAST(&facts, n_token);
     }
-    rule->tokens = tokens;
+    rule->facts = facts;
+    rule->conclusion = conclusion;
     return rule;
 }
 
