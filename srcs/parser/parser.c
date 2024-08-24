@@ -14,7 +14,7 @@ uint get_token_value(t_token *token)
     return token->value;
 }
 
-void free_tokens(t_token *tokens)
+static void free_tokens(t_token *tokens)
 {
     if (!tokens) return;
 
@@ -26,6 +26,8 @@ void free_tokens(t_token *tokens)
         next_token = FT_LIST_GET_NEXT(&tokens, current_token);
         FT_LIST_POP(&tokens, current_token);
         free(current_token);
+
+        /**/
         current_token = next_token;
     }
 }
@@ -40,14 +42,15 @@ void free_rules(t_rule *rules)
     while (current_rule)
     {
         next_rule = FT_LIST_GET_NEXT(&rules, current_rule);
-        free_tokens(current_rule->tokens);
+        free_tokens(current_rule->facts);
+        free_tokens(current_rule->conclusion);
         FT_LIST_POP(&rules, current_rule);
         free(current_rule);
+
+        /**/
         current_rule = next_rule;
     }
 }
-
-
 
 static void read_file(const char *filename, char **content)
 {
@@ -91,7 +94,7 @@ static void read_file(const char *filename, char **content)
     fclose(file);
 }
 
-t_token* create_token(t_token_type type, uint value)
+static t_token* create_token(t_token_type type, uint value)
 {
     t_token *token = malloc(sizeof(t_token));
     token->type = type;
@@ -99,14 +102,14 @@ t_token* create_token(t_token_type type, uint value)
     return token;
 }
 
-t_rule* process_line(char *line)
+static t_rule* process_line(char *line)
 {
     int i = 0;
     t_rule *rule = malloc(sizeof(t_rule));
     t_token *facts = NULL;
     t_token *conclusion = NULL;
     t_token *n_token = NULL;
-    bool conclusion = false;
+    bool equal_found = false;
 
     for (i = 0; line[i]; i++)
     {
@@ -114,8 +117,16 @@ t_rule* process_line(char *line)
         {
             case ' ':
             case '>':
-            case '?':
                 continue;
+            case '?':
+                if (i == 0)
+                {
+                    n_token = create_token(OPERATOR, '?');
+                    break;
+                }
+                fprintf(stderr, "Invalid character in rule %c.\n", line[i]);
+                ft_assert(i == 0, "Invalid character in rule");
+                break;
             case '+':
                 n_token = create_token(OPERATOR, '+');
                 break;
@@ -130,8 +141,13 @@ t_rule* process_line(char *line)
                 n_token = create_token(OPERATOR, '!');
                 break;
             case '=':
-                n_token = create_token(OPERATOR, '=');
-                break;
+                if (i == 0)
+                {
+                    n_token = create_token(OPERATOR, '=');
+                    break;
+                }
+                equal_found = true;
+                continue;
             default:
                 if (line[i] >= 'A' && line[i] <= 'Z')
                 {
@@ -144,7 +160,17 @@ t_rule* process_line(char *line)
                 }
                 break;
         }
-        FT_LIST_ADD_LAST(&facts, n_token);
+
+        switch (equal_found)
+        {
+            case false:
+                FT_LIST_ADD_LAST(&facts, n_token);
+                break;
+            case true:
+                FT_LIST_ADD_LAST(&conclusion, n_token);
+                break;
+        }
+
     }
     rule->facts = facts;
     rule->conclusion = conclusion;
@@ -152,7 +178,7 @@ t_rule* process_line(char *line)
 }
 
 
-t_rule* process_content(char *content)
+static t_rule* process_content(char *content)
 {
     t_rule *rules = NULL;
     t_rule *n_rule = NULL;
@@ -171,7 +197,7 @@ t_rule* process_content(char *content)
 }
 
 
-int parse(char* filename)
+int parse(char* filename, t_rule **rules)
 {
     char *content = NULL;
     read_file(filename, &content);
@@ -179,11 +205,9 @@ int parse(char* filename)
     printf("Parsing file CONTENT\n");
     printf("---------------------------------------\n");
 
-    t_rule *rules = process_content(content);
+    *rules = process_content(content);
     
-    free_rules(rules);
     free(content);
-
     return 0;
 }
 

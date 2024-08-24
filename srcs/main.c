@@ -18,7 +18,11 @@ int main(int argc, char**argv)
         return INVALID_ARGS;
     }
 
-    parse(argv[1]);
+    t_rule *rules = NULL;
 
+    parse(argv[1], &rules);
+
+
+    free_rules(rules);
     return OK;
 }

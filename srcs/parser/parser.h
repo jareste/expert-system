@@ -1,6 +1,10 @@
 #ifndef PARSE_H
 #define PARSE_H
 
-int parse(char* filename);
+/* UTILS */
+uint get_token_value(t_token *token);
+void free_rules(t_rule *rules);
+
+int parse(char* filename, t_rule **rules);
 
 #endif

@@ -10,10 +10,15 @@ typedef enum
     OPERATOR,
 } t_token_type;
 
+typedef enum
+{
+    false,
+    true
+} bool;
+
 typedef struct s_token
 {
-    list_item_t 
-    l;
+    list_item_t l;
     t_token_type type;
     uint value;
 } t_token;

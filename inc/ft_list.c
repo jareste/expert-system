@@ -157,7 +157,7 @@ int ft_list_get_size(void** _head)
 
     if (!head)
     {
-        return (INVALID_ARGS);
+        return (0);
     }
 
     if (!*head)
