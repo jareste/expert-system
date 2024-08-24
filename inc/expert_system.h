@@ -29,6 +29,13 @@ typedef struct s_rule {
     t_token *conclusion;
 } t_rule;
 
+typedef struct s_expert_system
+{
+    struct s_rule *rules;
+    struct s_rule *initial_values;
+    struct s_rule *queries;
+} t_expert_system;
+
 
 #define A 0x00000001
 #define B 0x00000002

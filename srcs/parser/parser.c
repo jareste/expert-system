@@ -111,6 +111,9 @@ static t_rule* process_line(char *line)
     t_token *n_token = NULL;
     bool equal_found = false;
 
+    if (line[0] == '?')
+        return NULL;
+
     for (i = 0; line[i]; i++)
     {
         switch (line[i])
@@ -119,11 +122,6 @@ static t_rule* process_line(char *line)
             case '>':
                 continue;
             case '?':
-                if (i == 0)
-                {
-                    n_token = create_token(OPERATOR, '?');
-                    break;
-                }
                 fprintf(stderr, "Invalid character in rule %c.\n", line[i]);
                 ft_assert(i == 0, "Invalid character in rule");
                 break;
@@ -188,6 +186,10 @@ static t_rule* process_content(char *content)
     {
         printf("%s\n", line);
         n_rule = process_line(line);
+        if (!n_rule)
+        {
+            break;
+        }
 
         FT_LIST_ADD_LAST(&rules, n_rule);
   
@@ -197,17 +199,91 @@ static t_rule* process_content(char *content)
 }
 
 
-int parse(char* filename, t_rule **rules)
+static t_rule* process_initial_values(char *content)
+{
+    t_rule *initial_values = NULL;
+    t_rule *n_rule = NULL;
+    
+    printf("Processing initial values\n");
+    char *line = strstr(content, "\n=");
+    if (line)
+    {
+        line += 2; // Move past "\n="
+        char *line_end = strchr(line, '\n');
+        if (line_end)
+        {
+            *line_end = '\0';
+        }
+     
+        printf("LINE::::::::::::::::::::::%s\n", line);
+        n_rule = process_line(line);
+        if (!n_rule)
+        {
+            printf("No initial values found\n");
+        }
+        else
+        {
+            FT_LIST_ADD_LAST(&initial_values, n_rule);
+        }
+        if (line_end)
+        {
+            *line_end = '\n';
+        }
+    }
+    return initial_values;
+}
+
+static t_rule* process_queries(char *content)
+{
+    t_rule *queries = NULL;
+    t_rule *n_rule = NULL;
+    
+    printf("Processing queries\n");
+    char *line = strstr(content, "\n?");
+    if (line)
+    {
+        line += 2; // Move past "\n?"
+        char *line_end = strchr(line, '\n');
+        if (line_end)
+        {
+            *line_end = '\0'; // Temporarily terminate the string at the newline
+        }
+        printf("LINE::::::::::::::::::::::%s\n", line);
+        n_rule = process_line(line);
+        if (!n_rule)
+        {
+            printf("No queries found\n");
+        }
+        else
+        {
+            FT_LIST_ADD_LAST(&queries, n_rule);
+        }
+        if (line_end)
+        {
+            *line_end = '\n'; // Restore the newline
+        }
+    }
+    return queries;
+}
+
+
+int parse(char* filename, t_expert_system *es)
 {
     char *content = NULL;
     read_file(filename, &content);
     printf("%s\n", content);
     printf("Parsing file CONTENT\n");
     printf("---------------------------------------\n");
+    char* initial = strdup(content);
+    char* queries = strdup(content);
 
-    *rules = process_content(content);
-    
+    es->rules = process_content(content);
+    es->initial_values = process_initial_values(initial);
+    es->queries = process_queries(queries);
+
     free(content);
+    free(initial);
+    free(queries);
     return 0;
 }
 

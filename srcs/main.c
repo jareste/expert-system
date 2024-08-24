@@ -19,12 +19,14 @@ int main(int argc, char**argv)
         return INVALID_ARGS;
     }
 
-    t_rule *rules = NULL;
+    t_expert_system es;
 
-    parse(argv[1], &rules);
+    parse(argv[1], &es);
 
-    evaluate(rules);
+    evaluate(&es);
 
-    free_rules(rules);
+    free_rules(es.rules);
+    free_rules(es.initial_values);
+    free_rules(es.queries);
     return OK;
 }
