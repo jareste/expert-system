@@ -100,7 +100,7 @@ int process_rules(t_rule *rules, uint* value)
 void print_marked_letters(uint value)
 {
     const char *letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    uint masks[] = {A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z};
+    const uint masks[] = {A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z};
 
     printf("Marked letters: ");
     for (int i = 0; i < 26; i++)
