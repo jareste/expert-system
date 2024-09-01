@@ -146,6 +146,12 @@ static t_rule* process_line(char *line)
                 }
                 equal_found = true;
                 continue;
+            case '(':
+                n_token = create_token(OPERATOR, '(');
+                break;
+            case ')':
+                n_token = create_token(OPERATOR, ')');
+                break;
             default:
                 if (line[i] >= 'A' && line[i] <= 'Z')
                 {

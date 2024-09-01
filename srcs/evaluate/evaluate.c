@@ -21,12 +21,32 @@ uint get_initial_value(t_token* token)
     return value;
 }
 
+bool perform_operation(char operation, bool left_operand, bool right_operand)
+{
+    switch (operation)
+    {
+        case '+':
+            return left_operand && right_operand;
+        case '|':
+            return left_operand || right_operand;
+        case '^':
+            return left_operand != right_operand;
+        case '!':
+            return !right_operand;
+        default:
+        /* should never happen, could even assert. */
+            return false;
+    }
+}
+
 bool evaluate_rule(t_rule *rule, uint *value)
 {
     t_token *current_token = rule->facts;
-    bool result = false;
 
-    char last_operator = '\0';
+    bool operand_stack[STACK_SIZE];
+    char operator_stack[STACK_SIZE];
+    int operand_top = -1;
+    int operator_top = -1;
 
     while (current_token)
     {
@@ -34,44 +54,65 @@ bool evaluate_rule(t_rule *rule, uint *value)
         {
             bool is_set = (*value & current_token->value) != 0;
 
-            if (last_operator == '\0')
-            {
-                result = is_set;
-            }
-            else if (last_operator == '+')
-            {
-                result = result && is_set;
-            }
-            else if (last_operator == '|')
-            {
-                result = result || is_set;
-            }
-            else if (last_operator == '^')
-            {
-                result = result != is_set;
-            }
-            else if (last_operator == '!')
-            {
-                
-                result = !is_set;
-            }
+            operand_stack[++operand_top] = is_set;
         }
         else if (current_token->type == OPERATOR)
         {
-            last_operator = (char)current_token->value;
+            char operator = (char)current_token->value;
+
+            if (operator == '(')
+            {
+                operator_stack[++operator_top] = operator;
+            }
+            else if (operator == ')')
+            {
+                while (operator_stack[operator_top] != '(')
+                {
+                    bool right_operand = operand_stack[operand_top--];
+                    bool left_operand = operand_stack[operand_top--];
+                    char operation = operator_stack[operator_top--];
+                    operand_stack[++operand_top] = perform_operation(operation, left_operand, right_operand);
+                }
+                operator_top--;
+            }
+            else
+            {
+                while (operator_top >= 0 && operator_stack[operator_top] != '(')
+                {
+                    char operation = operator_stack[operator_top--];
+                    bool right_operand = operand_stack[operand_top--];
+                    bool left_operand = operand_stack[operand_top--];
+                    operand_stack[++operand_top] = perform_operation(operation, left_operand, right_operand);
+                }
+                operator_stack[++operator_top] = operator;
+            }
         }
 
         current_token = FT_LIST_GET_NEXT(&rule->facts, current_token);
     }
 
-    return result;
+    while (operator_top >= 0)
+    {
+        char operation = operator_stack[operator_top--];
+        bool right_operand = operand_stack[operand_top--];
+        bool left_operand = operand_stack[operand_top--];
+        operand_stack[++operand_top] = perform_operation(operation, left_operand, right_operand);
+    }
+
+    bool final_result = operand_stack[operand_top];
+
+    if (final_result)
+    {
+        *value |= rule->conclusion->value;
+    }
+
+    return final_result;
 }
 
 int process_rules(t_rule *rules, uint* value)
 {
     t_rule *current_rule = rules;
     t_token *current_token;
-    
 
     for (int i = 0; i < 5; i++)
     {
@@ -122,7 +163,6 @@ int evaluate(t_expert_system *rules)
     process_rules(rules->rules, &init_value);
     printf("Final value: %u\n", init_value);
     print_marked_letters(init_value);
-    
 
     return OK;
 }

@@ -3,6 +3,7 @@
 #include <ft_list.h>
 
 #define uint unsigned int
+#define STACK_SIZE 512
 
 typedef enum
 {
