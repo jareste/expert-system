@@ -99,6 +99,12 @@ bool evaluate_rule(t_rule *rule, uint *value)
         operand_stack[++operand_top] = perform_operation(operation, left_operand, right_operand);
     }
 
+    if (operand_top > 0)
+    {
+        fprintf(stderr, "Stack size is: %d.\n", operand_top);
+        ft_assert(operand_top == 0, "Invalid rule. Stack size is not 1.");
+    }
+
     bool final_result = operand_stack[operand_top];
 
     if (final_result)
@@ -143,7 +149,7 @@ void print_marked_letters(uint value)
     const char *letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const uint masks[] = {A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z};
 
-    printf("Marked letters: ");
+    printf("True letters: ");
     for (int i = 0; i < 26; i++)
     {
         if (value & masks[i])
@@ -154,15 +160,36 @@ void print_marked_letters(uint value)
     printf("\n");
 }
 
+void process_queries(t_rule *queries, uint value)
+{
+    t_rule *current_query = queries;
+    t_token *current_token;
+
+    while (current_query)
+    {
+        current_token = current_query->facts;
+        while (current_token)
+        {
+            if (current_token->type == LETTER)
+            {
+                bool is_set = (value & current_token->value) != 0;
+                printf("%c is %s\n", 'A' + __builtin_ctz(current_token->value), is_set ? "true" : "false");
+            }
+            current_token = FT_LIST_GET_NEXT(&current_query->facts, current_token);
+        }
+        current_query = FT_LIST_GET_NEXT(&queries, current_query);
+    }
+}
+
 int evaluate(t_expert_system *rules)
 {
-    printf("Evaluating rules...\n");
-
     uint init_value = get_initial_value(rules->initial_values->facts);
-    printf("Initial value: %u\n", init_value);
+
     process_rules(rules->rules, &init_value);
-    printf("Final value: %u\n", init_value);
+
     print_marked_letters(init_value);
+
+    process_queries(rules->queries, init_value);
 
     return OK;
 }

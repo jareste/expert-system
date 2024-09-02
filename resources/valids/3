@@ -1,0 +1,9 @@
+X | Y => Z 
+Z + A => B 
+B + C => D 
+
+=XYA
+
+?D
+
+# Expected result: D is true

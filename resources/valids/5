@@ -1,6 +1,8 @@
 A | B + C => E 
 ((F | G) + H) => E 
 
-=FH#kkkk
+=FH
 
 ?E
+
+# Expected result: E is true

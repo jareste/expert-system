@@ -1,0 +1,9 @@
+D + E => F 
+F + G => H 
+(A + B) => D 
+
+=ABG
+
+?H
+
+# Expected result: H is true

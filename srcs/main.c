@@ -28,5 +28,5 @@ int main(int argc, char**argv)
     free_rules(es.rules);
     free_rules(es.initial_values);
     free_rules(es.queries);
-    return OK;
+    return 0;
 }
