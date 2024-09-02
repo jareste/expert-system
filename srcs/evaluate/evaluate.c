@@ -109,6 +109,10 @@ bool evaluate_rule(t_rule *rule, uint *value)
 
     if (final_result)
     {
+        /*
+            it must be modified in order to be able to handle
+            multiple conclusion values 'A + B' 'A | B'
+        */
         *value |= rule->conclusion->value;
     }
 
