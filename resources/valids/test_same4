@@ -1,0 +1,8 @@
+B => A 
+C => A 
+
+=BC
+
+?A
+
+# Expected result: A is true

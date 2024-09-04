@@ -6,4 +6,4 @@ B + C => D
 
 ?D
 
-# Expected result: D is true
+# Expected result: D is false

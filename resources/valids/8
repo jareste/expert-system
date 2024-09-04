@@ -1,6 +1,6 @@
 L + M => N 
 O + P => Q 
-Q + N => R 
+Q + !N => R 
 
 =LMO
 

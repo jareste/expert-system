@@ -1,0 +1,8 @@
+A | B + C => E 
+(F | G) + H => E 
+
+=A
+
+?E
+
+# Expected result: E is false

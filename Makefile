@@ -9,11 +9,11 @@ RELEASE_CFLAGS = $(CFLAGS) -DNDEBUG
 #########
 
 #########
-FILES = main ft_list ft_malloc parser evaluate
+FILES = main ft_list ft_malloc parser evaluate interactive
 
 SRC = $(addsuffix .c, $(FILES))
 
-vpath %.c srcs inc srcs/parser srcs/evaluate
+vpath %.c srcs inc srcs/parser srcs/evaluate srcs/interactive
 #########
 
 #########
@@ -25,7 +25,7 @@ DEP = $(addsuffix .d, $(basename $(OBJ)))
 #########
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(@D)
-	${CC} -MMD $(CFLAGS) -c -Iinc -Isrcs/parser -Isrcs/evaluate $< -o $@
+	${CC} -MMD $(CFLAGS) -c -Iinc -Isrcs/parser -Isrcs/evaluate -Isrcs/interactive $< -o $@
 
 all: 
 	$(MAKE) $(NAME)

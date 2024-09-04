@@ -16,7 +16,7 @@ uint get_token_value(t_token *token)
     return token->value;
 }
 
-static void free_tokens(t_token *tokens)
+void free_tokens(t_token *tokens)
 {
     if (!tokens) return;
 
@@ -114,7 +114,7 @@ int check_file_format(FILE *file)
 
     while (fgets(line, sizeof(line), file))
     {
-        line[strcspn(line, "\n")] = '\0';
+        line[strcspn(line, "\r\n")] = '\0';
 
         char *comment_pos = strchr(line, '#');
         if (comment_pos)
@@ -144,7 +144,7 @@ int check_file_format(FILE *file)
         char *arrow_pos = strstr(trimmed_line, "=>");
         if (arrow_pos == NULL)
         {
-            fprintf(stderr, "No arrow found in line: %s\n", trimmed_line);
+            fprintf(stderr, "No arrow found in line: %s\r\n", trimmed_line);
             ft_assert(0, "Fatal error: No arrow found in line.");
             return 0;
         }
@@ -155,9 +155,9 @@ int check_file_format(FILE *file)
 
         for (const char *c = left_side; *c; c++)
         {
-            if (!isalnum(*c) && *c != '|' && *c != '+' && *c != '^' && *c != '(' && *c != ')' && *c != '!' && *c != ' ')
+            if (!isalnum(*c) && *c != '|' && *c != '+' && *c != '^' && *c != '(' && *c != ')' && *c != '!' && *c != ' ' && *c != '<')
             {
-                fprintf(stderr, "Invalid character: %c\n", *c);
+                fprintf(stderr, "Invalid character: %c\r\n", *c);
                 ft_assert(0, "Fatal error: Invalid character.");
                 return 0;
             }
@@ -165,14 +165,14 @@ int check_file_format(FILE *file)
 
         if (!check_balanced_parentheses(left_side))
         {
-            fprintf(stderr, "Unbalanced parentheses.\n");
+            fprintf(stderr, "Unbalanced parentheses.\r\n");
             ft_assert(0, "Fatal error: Unbalanced parentheses.");
             return 0;
         }
 
         if (!check_uppercase_in_rightside(right_side))
         {
-            fprintf(stderr, "Right side must contain at least one uppercase letter.\n");
+            fprintf(stderr, "Right side must contain at least one uppercase letter.\r\n");
             ft_assert(0, "Fatal error: Right side must contain at least one uppercase letter.");
             return 0;
         }
@@ -185,26 +185,26 @@ static void read_file(const char *filename, char **content)
 {
     if (access(filename, F_OK) != 0)
     {
-        fprintf(stderr, "ft_ssl: %s: No such file or directory\n", filename);
+        fprintf(stderr, "expert-system: %s: No such file or directory\r\n", filename);
         ft_assert(access(filename, F_OK) == 0, "Fatal error: File does not exist.");
     }
 
     if (access(filename, R_OK) != 0)
     {
-        fprintf(stderr, "ft_ssl: %s: Permission denied\n", filename);
+        fprintf(stderr, "expert-system: %s: Permission denied\r\n", filename);
         ft_assert(access(filename, R_OK) == 0, "Fatal error: Permission denied.");
     }
 
     FILE *file = fopen(filename, "rb");
     if (!file)
     {
-        fprintf(stderr, "ft_ssl: %s: %s\n", filename, strerror(errno));
+        fprintf(stderr, "expert-system: %s: %s\r\n", filename, strerror(errno));
         /* NEVER HERE */
         ft_assert(file, "Fatal error: Could not open file.");
     }
     
     if (!check_file_format(file)) {
-        fprintf(stderr, "ft_ssl: %s: Invalid file format\n", filename);
+        fprintf(stderr, "expert-system: %s: Invalid file format\r\n", filename);
         ft_assert(0, "Fatal error: Invalid file format.");
     }
 
@@ -236,7 +236,7 @@ static t_token* create_token(t_token_type type, uint value)
     return token;
 }
 
-static t_rule* process_line(char *line)
+t_rule* process_line(char *line)
 {
     int i = 0;
     t_rule *rule = malloc(sizeof(t_rule));
@@ -244,6 +244,7 @@ static t_rule* process_line(char *line)
     t_token *conclusion = NULL;
     t_token *n_token = NULL;
     bool equal_found = false;
+    bool biconditional_found = false;
 
     if (line[0] == '?')
         return NULL;
@@ -252,11 +253,13 @@ static t_rule* process_line(char *line)
     {
         switch (line[i])
         {
+            case '<':
+                biconditional_found = true;
             case ' ':
             case '>':
                 continue;
             case '?':
-                fprintf(stderr, "Invalid character in rule %c.\n", line[i]);
+                fprintf(stderr, "Invalid character in rule %c.\r\n", line[i]);
                 ft_assert(i == -1, "Invalid character in rule");
                 break;
             case '+':
@@ -280,7 +283,7 @@ static t_rule* process_line(char *line)
                 }
                 if (equal_found)
                 {
-                    fprintf(stderr, "Found more than one equal in rule: %s.\n", line);
+                    fprintf(stderr, "Found more than one equal in rule: %s.\r\n", line);
                     ft_assert(equal_found == false, "More than one equal found in rule.");
                 }
                 equal_found = true;
@@ -300,7 +303,7 @@ static t_rule* process_line(char *line)
                 }
                 else
                 {
-                    fprintf(stderr, "Invalid character in rule %c.\n", line[i]);
+                    fprintf(stderr, "Invalid character in rule %c.\r\n", line[i]);
                     ft_assert(line[i] >= 'A' && line[i] <= 'Z', "Invalid character in rule");
                 }
                 break;
@@ -322,8 +325,18 @@ static t_rule* process_line(char *line)
         }
 
     }
-    rule->facts = facts;
-    rule->conclusion = conclusion;
+    if (biconditional_found && rand() % 2 == 0)
+    {
+        rule->facts = conclusion;
+        rule->conclusion = facts;
+        
+    }
+    else
+    {
+        rule->facts = facts;
+        rule->conclusion = conclusion;
+    }
+
     return rule;
 }
 
@@ -333,14 +346,14 @@ static t_rule* process_content(char *content)
     t_rule *rules = NULL;
     t_rule *n_rule = NULL;
     
-    char *line = strtok(content, "\n");
+    char *line = strtok(content, "\r\n");
     while (line)
     {
         line += strspn(line, " \t");
 
         if (line[0] == '=' || line[0] == '?')
         {
-            line = strtok(NULL, "\n");
+            line = strtok(NULL, "\r\n");
             continue;
         }
 
@@ -350,9 +363,15 @@ static t_rule* process_content(char *content)
             break;
         }
 
+        if (n_rule->facts == NULL && n_rule->conclusion == NULL)
+        {
+            free(n_rule);
+            break;
+        }
+
         FT_LIST_ADD_LAST(&rules, n_rule);
   
-        line = strtok(NULL, "\n");
+        line = strtok(NULL, "\r\n");
     }
     return rules;
 }
@@ -367,7 +386,7 @@ static t_rule* process_initial_values(char *content)
 
     if (regcomp(&regex, pattern, REG_EXTENDED) != 0)
     {
-        printf("Could not compile regex\n");
+        printf("Could not compile regex\r\n");
         return NULL;
     }
 
@@ -388,7 +407,7 @@ static t_rule* process_initial_values(char *content)
             }
             if (line[i] < 'A' || line[i] > 'Z')
             {
-                fprintf(stderr, "Invalid character in initial values %c.\n", line[i]);
+                fprintf(stderr, "Invalid character in initial values %c.\r\n", line[i]);
                 ft_assert(line[i] >= 'A' && line[i] <= 'Z', "Invalid character in initial values");
             }
         }
@@ -396,7 +415,7 @@ static t_rule* process_initial_values(char *content)
         n_rule = process_line(line);
         if (!n_rule)
         {
-            printf("No initial values found\n");
+            printf("No initial values found\r\n");
         }
         else
         {
@@ -405,11 +424,15 @@ static t_rule* process_initial_values(char *content)
         
         if (line_end) {
             *line_end = '\n';
+            if (regexec(&regex, line_end, 1, &pmatch[0], 0) == 0)
+            {
+                ft_assert(0, "Fatal error: More than one initial values found.");
+            }
         }
     }
     else
     {
-        fprintf(stderr, "Could not find line starting by =.\n");
+        fprintf(stderr, "Could not find line starting by =.\r\n");
         ft_assert(initial_values, "Fatal error: No initial values found on file.");
     }
 
@@ -428,7 +451,7 @@ static t_rule* process_queries(char *content)
 
     if (regcomp(&regex, pattern, REG_EXTENDED) != 0)
     {
-        fprintf(stderr, "Fatal error: could not compile regex\n");
+        fprintf(stderr, "Fatal error: could not compile regex\r\n");
         ft_assert(0, "Fatal error: could not compile regex");
     }
 
@@ -449,7 +472,7 @@ static t_rule* process_queries(char *content)
             }
             if (line[i] < 'A' || line[i] > 'Z')
             {
-                fprintf(stderr, "Invalid character in queries %c.\n", line[i]);
+                fprintf(stderr, "Invalid character in queries %c.\r\n", line[i]);
                 ft_assert(line[i] >= 'A' && line[i] <= 'Z', "Invalid character in queries");
             }
         }
@@ -457,7 +480,7 @@ static t_rule* process_queries(char *content)
         n_rule = process_line(line);
         if (!n_rule)
         {
-            printf("No queries found\n");
+            printf("No queries found\r\n");
         }
         else
         {
@@ -467,11 +490,15 @@ static t_rule* process_queries(char *content)
         if (line_end)
         {
             *line_end = '\n';
+            if (regexec(&regex, line_end, 1, &pmatch[0], 0) == 0)
+            {
+                ft_assert(0, "Fatal error: More than one queries values found.");
+            }
         }
     }
     else
     {
-        fprintf(stderr, "Could not find line starting by ?.\n");
+        fprintf(stderr, "Could not find line starting by ?.\r\n");
         ft_assert(queries, "Fatal error: No queries found on file.");
     }
 

@@ -6,4 +6,4 @@ F + G => H
 
 ?H
 
-# Expected result: H is true
+# Expected result: H is false

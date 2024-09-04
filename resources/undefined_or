@@ -1,6 +1,6 @@
 P + Q => R 
 (R | S) => T 
-T + U => V + Y
+T + U => V | Y
 Z => !Z
 !E => E
 

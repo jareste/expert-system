@@ -1,0 +1,7 @@
+B + !C => A 
+
+=BC
+
+?A
+
+# Expected result: A is false
