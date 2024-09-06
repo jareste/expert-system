@@ -3,7 +3,8 @@
 
 #include <expert_system.h>
 
-int interactive_mode(t_expert_system* es);
+int interactive_mode(t_expert_system* es, bool is_verbose);
+void print_tokens(t_token *tokens);
 
 #define MENU_INTERACTIVE "Interactive mode\r\n\
     Commands:\r\n\
@@ -16,6 +17,7 @@ int interactive_mode(t_expert_system* es);
     - m: modify initial values\r\n\
     - k: modify queries\r\n\
     - e: evaluate actual rules.\r\n\
+    - v: enable or disable verbose mode\r\n\
     - h: print this menu\r\n"
 
 

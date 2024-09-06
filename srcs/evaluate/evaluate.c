@@ -6,6 +6,7 @@
 #include <parser.h>
 #include <stdlib.h>
 #include <time.h>
+#include <interactive.h>
 
 uint get_initial_value(t_token* token)
 {
@@ -196,35 +197,6 @@ bool evaluate_rule(t_rule *rule, uint *value)
     return final_result;
 }
 
-int process_rules(t_rule *rules, uint* value)
-{
-    t_rule *current_rule = rules;
-    // t_token *current_token;
-
-    for (int i = 0; i < 5; i++)
-    {
-        current_rule = rules;
-        while (current_rule)
-        {
-            if (evaluate_rule(current_rule, value))
-            {
-                // current_token = current_rule->conclusion;
-                // while (current_token)
-                // {
-                //     if (current_token->type == LETTER)
-                //     {
-                //         *value |= current_token->value;
-                //     }
-                //     current_token = FT_LIST_GET_NEXT(&current_rule->conclusion, current_token);
-                // }
-            }
-            current_rule = FT_LIST_GET_NEXT(&rules, current_rule);
-        }
-    }
-
-    return OK;
-}
-
 void print_marked_letters(uint value)
 {
     const char *letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -237,8 +209,56 @@ void print_marked_letters(uint value)
             printf("%c ", letters[i]);
         }
     }
-    printf("\r\n");
 }
+
+int process_rules(t_rule *rules, uint *value, uint *queries_value, bool is_verbose)
+{
+    t_rule *current_rule = rules;
+    uint prev_value;
+
+    for (int i = 0; i < 5; i++)
+    {
+        current_rule = rules;
+        while (current_rule)
+        {
+            prev_value = *value;
+
+            evaluate_rule(current_rule, value);
+
+            if (is_verbose)
+            {
+                uint diff = *value ^ prev_value;
+
+                uint queries_diff = diff & *queries_value;
+
+                if (queries_diff)
+                {
+                    printf("Value ");
+
+                    for (int i = 0; i < 26; i++)                {
+                        uint mask = 1 << i;
+                        if (queries_diff & mask)
+                        {
+                            bool is_true = (*value & mask) != 0;
+                            printf("%c changed to %s ", 'A' + i, is_true ? "true" : "false");
+                        }
+                    }
+
+                    printf("due to rule: '");
+                    
+                    print_tokens(current_rule->facts);
+                    printf(" => ");
+                    print_tokens(current_rule->conclusion);
+                    printf("'\r\n");
+                }
+            }
+            current_rule = FT_LIST_GET_NEXT(&rules, current_rule);
+        }
+    }
+
+    return OK;
+}
+
 
 void process_queries(t_rule *queries, uint value)
 {
@@ -261,13 +281,17 @@ void process_queries(t_rule *queries, uint value)
     }
 }
 
-int evaluate(t_expert_system *rules)
+int evaluate(t_expert_system *rules, bool is_verbose)
 {
     uint init_value = get_initial_value(rules->initial_values->facts);
+    uint queries_value = get_initial_value(rules->queries->facts);
 
-    process_rules(rules->rules, &init_value);
 
+    process_rules(rules->rules, &init_value, &queries_value, is_verbose);
+
+    printf("Letters evaluated as true: ");
     print_marked_letters(init_value);
+    printf("\r\n");
 
     process_queries(rules->queries, init_value);
 

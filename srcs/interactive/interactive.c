@@ -122,7 +122,7 @@ void modify_initial_values(t_rule* initial_values, bool is_query)
     printf("%s modified successfully.\r\n", is_query ? "Queries" : "Initial values");
 }
 
-static void print_tokens(t_token *tokens)
+void print_tokens(t_token *tokens)
 {
     t_token *current_token = tokens;
 
@@ -140,7 +140,7 @@ static void print_tokens(t_token *tokens)
     }
 }
 
-void print_rules(t_rule *rules)
+static void print_rules(t_rule *rules)
 {
     t_rule *current_rule = rules;
     uint counter = 1;
@@ -317,7 +317,7 @@ void add_new_rule(t_expert_system* es)
 
 
 
-int interactive_mode(t_expert_system* es)
+int interactive_mode(t_expert_system* es, bool is_verbose)
 {
     uint initial_values = 0;
     modify_terminal_settings();
@@ -342,6 +342,7 @@ int interactive_mode(t_expert_system* es)
                 initial_values = get_initial_value(es->initial_values->facts);
                 printf("Initial values:\r\n");
                 print_marked_letters(initial_values);
+                printf("\r\n");
                 initial_values = 0;
                 break;
             case 'P':
@@ -349,6 +350,7 @@ int interactive_mode(t_expert_system* es)
                 initial_values = get_initial_value(es->queries->facts);
                 printf("Queries:\r\n");
                 print_marked_letters(initial_values);
+                printf("\r\n");
                 initial_values = 0;
                 break;
             case 'R':
@@ -373,7 +375,12 @@ int interactive_mode(t_expert_system* es)
                 break;
             case 'E':
             case 'e':
-                evaluate(es);
+                evaluate(es, is_verbose);
+                break;
+            case 'V':
+            case 'v':
+                is_verbose = !is_verbose;
+                printf("Verbose mode %s.\r\n", is_verbose ? "enabled" : "disabled");
                 break;
             default:
                 printf("Unknown command\r\n");
