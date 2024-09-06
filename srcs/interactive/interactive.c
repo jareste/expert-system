@@ -277,7 +277,7 @@ void add_new_rule(t_expert_system* es)
                 reading_facts = false;
                 printf(" => ");
             }
-            else if (isalpha(ch) || ch == '+' || ch == '|' || ch == '^' || ch == '(' || ch == ')' || '!')
+            else if (isalpha(ch) || (ch == '+') || (ch == '|') || (ch == '^') || (ch == '(') || (ch == ')') || (ch == '!'))
             {
                 facts[fact_index++] = ch;
                 putchar(ch);
@@ -290,7 +290,7 @@ void add_new_rule(t_expert_system* es)
         }
         else
         {
-            if (isalpha(ch) || ch == '+' || ch == '|' || ch == '^' || ch == '(' || ch == ')' || ch == '!')
+            if (isalpha(ch) || (ch == '+') || (ch == '|') || (ch == '^') || (ch == '(') || (ch == ')') || (ch == '!'))
             {
                 conclusion[conclusion_index++] = ch;
                 putchar(ch);
