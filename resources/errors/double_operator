@@ -1,0 +1,9 @@
+L + + M => N 
+O + P => Q 
+Q + N => R 
+
+=LMO
+
+?R
+
+# Expected result: R is false

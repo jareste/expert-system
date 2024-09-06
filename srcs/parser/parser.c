@@ -267,7 +267,6 @@ t_rule* process_line(char *line)
                 break;
             case '|':
                 n_token = create_token(OPERATOR, '|');
-
                 break;
             case '^':
                 n_token = create_token(OPERATOR, '^');
@@ -481,6 +480,7 @@ static t_rule* process_queries(char *content)
         if (!n_rule)
         {
             printf("No queries found\r\n");
+            ft_assert(0, "No queries found\r\n");
         }
         else
         {

@@ -308,6 +308,11 @@ void add_new_rule(t_expert_system* es)
     char whole_line[INPUT_SIZE * 2 + 3] = {0};
     snprintf(whole_line, sizeof(whole_line), "%s=>%s", facts, conclusion);
 
+    if (strlen(facts) < 1 || strlen(conclusion) < 1)
+    {
+        printf("Invalid format for rule.\r\n");
+        return;
+    }
     t_rule *new_rule = process_line(whole_line);
     
     FT_LIST_ADD_LAST(&es->rules, new_rule);
