@@ -236,7 +236,52 @@ static t_token* create_token(t_token_type type, uint value)
     return token;
 }
 
-t_rule* process_line(char *line)
+static void check_line_format(t_token *token, bool* prev_letter)
+{
+    if ((token->type == LETTER) && !(*prev_letter))
+    {
+        *prev_letter = true;
+        return;
+    }
+    else if ((token->type == LETTER) && *prev_letter)
+    {
+        fprintf(stderr, "expert-system: Invalid line format two consecutive letters.\r\n");
+        ft_assert(0, "Fatal error: Invalid file format.");
+    }
+    else if((token->type == OPERATOR) && !(*prev_letter))
+    {
+        switch (token->value)
+        {
+            case '!':
+            case '(':
+            case ')':
+            case '?':
+            case '=':
+            case '>':
+                return;
+            default:
+                fprintf(stderr, "expert-system: Invalid line format two consecutive operators.\r\n");
+                ft_assert(0, "Fatal error: Invalid file format.");
+        }
+    }
+    else
+    {   
+        switch (token->value)
+        {
+            case '!':
+            case '(':
+            case ')':
+            case '?':
+            case '=':
+            case '>':
+                return;
+            default:
+                *prev_letter = false;
+        }
+    }
+}
+
+t_rule* process_line(char *line, bool is_rule)
 {
     int i = 0;
     t_rule *rule = malloc(sizeof(t_rule));
@@ -245,6 +290,7 @@ t_rule* process_line(char *line)
     t_token *n_token = NULL;
     bool equal_found = false;
     bool biconditional_found = false;
+    bool prev_letter = false;
 
     if (line[0] == '?')
         return NULL;
@@ -286,6 +332,7 @@ t_rule* process_line(char *line)
                     ft_assert(equal_found == false, "More than one equal found in rule.");
                 }
                 equal_found = true;
+                prev_letter = false;
                 continue;
             case '(':
                 n_token = create_token(OPERATOR, '(');
@@ -316,9 +363,13 @@ t_rule* process_line(char *line)
         switch (equal_found)
         {
             case false:
+                if (is_rule)
+                    check_line_format(n_token, &prev_letter);
                 FT_LIST_ADD_LAST(&facts, n_token);
                 break;
             case true:
+                if (is_rule)
+                    check_line_format(n_token, &prev_letter);
                 FT_LIST_ADD_LAST(&conclusion, n_token);
                 break;
         }
@@ -356,7 +407,7 @@ static t_rule* process_content(char *content)
             continue;
         }
 
-        n_rule = process_line(line);
+        n_rule = process_line(line, true);
         if (!n_rule)
         {
             break;
@@ -411,7 +462,7 @@ static t_rule* process_initial_values(char *content)
             }
         }
 
-        n_rule = process_line(line);
+        n_rule = process_line(line, false);
         if (!n_rule)
         {
             printf("No initial values found\r\n");
@@ -476,7 +527,7 @@ static t_rule* process_queries(char *content)
             }
         }
 
-        n_rule = process_line(line);
+        n_rule = process_line(line, false);
         if (!n_rule)
         {
             printf("No queries found\r\n");

@@ -313,7 +313,7 @@ void add_new_rule(t_expert_system* es)
         printf("Invalid format for rule.\r\n");
         return;
     }
-    t_rule *new_rule = process_line(whole_line);
+    t_rule *new_rule = process_line(whole_line, true);
     
     FT_LIST_ADD_LAST(&es->rules, new_rule);
 
